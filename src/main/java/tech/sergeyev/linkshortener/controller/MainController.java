@@ -1,47 +1,39 @@
 package tech.sergeyev.linkshortener.controller;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.sergeyev.linkshortener.persistence.model.ShortUrl;
-import tech.sergeyev.linkshortener.persistence.repository.ShortUrlRepository;
-import tech.sergeyev.linkshortener.service.ShortLinkGenerator;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import tech.sergeyev.linkshortener.persistence.model.ShortLink;
+import tech.sergeyev.linkshortener.service.ShortLinkService;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class MainController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MainController.class.getSimpleName());
+    static final Logger LOGGER = LoggerFactory.getLogger(MainController.class.getSimpleName());
 
-    private final ShortUrlRepository urlRepository;
-    private final ShortLinkGenerator generator;
-    @Value("${code.length}")
-    private int codeLength;
+    final ShortLinkService linkService;
 
-    public MainController(ShortUrlRepository urlRepository,
-                          ShortLinkGenerator generator) {
-        this.urlRepository = urlRepository;
-        this.generator = generator;
+    public MainController(ShortLinkService linkService) {
+        this.linkService = linkService;
     }
 
     @PostMapping(value = "/", consumes = APPLICATION_JSON_VALUE)
-    public ShortUrl createShortUrl(@RequestBody ShortUrl url) {
-        String code = generator.generateCode(codeLength);
-        String urlToString = URLDecoder.decode(url.getOriginalUrl(), StandardCharsets.UTF_8);
-        url = new ShortUrl(code, urlToString);
-        return urlRepository.save(url);
+    public ResponseEntity<?> createShortUrl(@RequestBody ShortLink url) {
+        return url != null
+            ? ResponseEntity.ok(linkService.create(url.getOriginalUrl()))
+            : ResponseEntity.badRequest().build();
     }
 
-    @GetMapping("/{shortUrl}")
-    public ResponseEntity<?> redirectToShortUrl(@PathVariable("shortUrl") String shortUrl) {
-        ShortUrl url = urlRepository.findByShortUrl(shortUrl);
+    @GetMapping("/{shortCode}")
+    public ResponseEntity<?> redirectToShortUrl(@PathVariable("shortCode") String code) {
+        ShortLink url = linkService.getByShortCode(code);
         if (url != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", url.getOriginalUrl());
