@@ -24,6 +24,11 @@ public class MainController {
         this.linkService = linkService;
     }
 
+    @GetMapping("/")
+    public ResponseEntity<?> index() {
+        return new ResponseEntity<>("Hello! It's main page", HttpStatus.OK);
+    }
+
     @PostMapping(value = "/", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createShortUrl(@RequestBody ShortLink url) {
         return url != null
@@ -33,7 +38,7 @@ public class MainController {
 
     @GetMapping("/{shortCode}")
     public ResponseEntity<?> redirectToShortUrl(@PathVariable("shortCode") String code) {
-        ShortLink url = linkService.getByShortCode(code);
+        ShortLink url = linkService.getOriginalUrlByShortCode(code);
         if (url != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", url.getOriginalUrl());
