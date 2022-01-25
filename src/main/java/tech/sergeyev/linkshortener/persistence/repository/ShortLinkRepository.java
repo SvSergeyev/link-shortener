@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ShortLinkRepository extends CrudRepository<ShortLink, Long> {
-    ShortLink findByShortCode(String shortUrl);
+    ShortLink findByShortCode(String url);
+    Boolean existsByOriginalUrl(String url);
+    ShortLink findByOriginalUrl(String url);
     List<ShortLink> findAllByAuthor(Author author);
 }

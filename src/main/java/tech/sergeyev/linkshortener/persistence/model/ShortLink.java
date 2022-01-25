@@ -1,5 +1,6 @@
 package tech.sergeyev.linkshortener.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,12 +20,12 @@ public class ShortLink {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
-
     String shortCode;
     String originalUrl;
     @CreatedDate
     LocalDateTime createdAt;
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.ALL)
     Author author;
     Boolean temporary = false;
 

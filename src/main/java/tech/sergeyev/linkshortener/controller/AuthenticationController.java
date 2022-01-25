@@ -17,8 +17,10 @@ import tech.sergeyev.linkshortener.payload.AuthDto;
 import tech.sergeyev.linkshortener.persistence.model.Author;
 import tech.sergeyev.linkshortener.persistence.repository.AuthorRepository;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
-@RequestMapping("/auth")
+@RequestMapping
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
 
@@ -34,7 +36,7 @@ public class AuthenticationController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> login(@RequestBody AuthDto loginData) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -43,7 +45,7 @@ public class AuthenticationController {
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
-        return new ResponseEntity<>("Login successful!", HttpStatus.OK);
+        return new ResponseEntity<>("Login successful", HttpStatus.OK);
     }
 
     @PostMapping("/signup")
@@ -58,6 +60,6 @@ public class AuthenticationController {
 
         authorRepository.save(author);
 
-        return new ResponseEntity<>("You registered successfully", HttpStatus.OK);
+        return new ResponseEntity<>("You have successfully registered", HttpStatus.OK);
     }
 }

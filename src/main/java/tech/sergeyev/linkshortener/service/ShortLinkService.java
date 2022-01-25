@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import tech.sergeyev.linkshortener.persistence.model.Author;
 import tech.sergeyev.linkshortener.persistence.model.ShortLink;
+import tech.sergeyev.linkshortener.persistence.repository.AuthorRepository;
 import tech.sergeyev.linkshortener.persistence.repository.ShortLinkRepository;
 import tech.sergeyev.linkshortener.service.security.AuthorDetailsService;
 
@@ -19,26 +20,35 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ShortLinkService {
 
-    final ShortLinkRepository repository;
+    final ShortLinkRepository linkRepository;
     final ShortLinkGenerator generator;
     final AuthorDetailsService authorService;
+    final AuthorRepository authorRepository;
     @Value("${code.length}")
     int codeLength;
 
-    public ShortLinkService(ShortLinkRepository repository,
+    public ShortLinkService(ShortLinkRepository linkRepository,
                             ShortLinkGenerator generator,
-                            AuthorDetailsService authorService) {
-        this.repository = repository;
+                            AuthorDetailsService authorService,
+                            AuthorRepository authorRepository) {
+        this.linkRepository = linkRepository;
         this.generator = generator;
         this.authorService = authorService;
+        this.authorRepository = authorRepository;
     }
 
     public ShortLink create(String originalUrl) {
+        if (linkRepository.existsByOriginalUrl(originalUrl)) {
+            return linkRepository.findByOriginalUrl(originalUrl);
+        }
+
         ShortLink link = new ShortLink();
 
-        UserDetails authorizedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        // TODO: юзер не кастуется в автора!!!
-        Author author = (Author) authorService.loadUserByUsername(authorizedUser.getUsername());
+        UserDetails authorizedUser = authorService.loadUserByUsername(
+                ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                        .getUsername()
+        );
+        Author author = authorRepository.findAuthorByUsername(authorizedUser.getUsername()).orElseThrow();
         link.setAuthor(author);
 
         String code = generator.generateCode(codeLength);
@@ -49,10 +59,10 @@ public class ShortLinkService {
 
         link.setCreatedAt(LocalDateTime.now());
 
-        return repository.save(link);
+        return linkRepository.save(link);
     }
 
     public ShortLink getOriginalUrlByShortCode(String code) {
-        return repository.findByShortCode(code);
+        return linkRepository.findByShortCode(code);
     }
 }

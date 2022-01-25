@@ -26,7 +26,7 @@ public class MainController {
 
     @GetMapping("/")
     public ResponseEntity<?> index() {
-        return new ResponseEntity<>("Hello! It's main page", HttpStatus.OK);
+        return new ResponseEntity<>("Hey! You are on the main page. Please login or register to continue", HttpStatus.OK);
     }
 
     @PostMapping(value = "/", consumes = APPLICATION_JSON_VALUE)

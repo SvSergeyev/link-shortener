@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -48,28 +47,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                    .antMatchers("/auth/**").permitAll()
-                    .antMatchers("/").permitAll()
+                    .antMatchers("/", "/login", "/signup").permitAll()
                     .anyRequest().authenticated()
                 .and()
                 .httpBasic();
     }
-    /*
-    http
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/**").permitAll()
-                .antMatchers("/api/auth/**").permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .httpBasic();
-    }
-
-    http
-                .csrf().disable()
-                .authorizeRequests().anyRequest().authenticated()
-                .and()
-                .httpBasic();
-     */
 }
