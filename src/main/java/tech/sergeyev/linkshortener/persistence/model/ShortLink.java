@@ -25,7 +25,7 @@ public class ShortLink {
     @CreatedDate
     LocalDateTime createdAt;
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     Author author;
     Boolean temporary = false;
 

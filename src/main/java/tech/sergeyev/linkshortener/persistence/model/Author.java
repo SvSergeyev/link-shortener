@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.List;
@@ -21,6 +23,7 @@ public class Author {
     String username;
     String password;
     @OneToMany(mappedBy = "author")
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
     List<ShortLink> createdLinks;
 
     @Override

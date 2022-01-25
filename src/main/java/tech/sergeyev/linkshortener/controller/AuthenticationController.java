@@ -60,6 +60,6 @@ public class AuthenticationController {
 
         authorRepository.save(author);
 
-        return new ResponseEntity<>("You have successfully registered", HttpStatus.OK);
+        return new ResponseEntity<>("You have successfully registered", HttpStatus.CREATED);
     }
 }

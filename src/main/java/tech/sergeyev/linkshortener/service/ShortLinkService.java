@@ -65,4 +65,12 @@ public class ShortLinkService {
     public ShortLink getOriginalUrlByShortCode(String code) {
         return linkRepository.findByShortCode(code);
     }
+
+    public boolean checkByShortCode(String code) {
+        return linkRepository.existsByShortCode(code);
+    }
+
+    public void deleteByShortCode(String code) {
+        linkRepository.delete(linkRepository.findByShortCode(code));
+    }
 }

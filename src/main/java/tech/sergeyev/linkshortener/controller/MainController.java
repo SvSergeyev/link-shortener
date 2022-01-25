@@ -16,6 +16,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MainController {
+
     static final Logger LOGGER = LoggerFactory.getLogger(MainController.class.getSimpleName());
 
     final ShortLinkService linkService;
@@ -44,6 +45,15 @@ public class MainController {
             headers.add("Location", url.getOriginalUrl());
             return new ResponseEntity<String>(headers, HttpStatus.FOUND);
         }
-        return ResponseEntity.notFound().build();
+        return new ResponseEntity<>("No such link exists", HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/{shortCode}")
+    public ResponseEntity<?> deleteLink(@PathVariable("shortCode") String code) {
+        if (!linkService.checkByShortCode(code)) {
+            return new ResponseEntity<>("No such link exists", HttpStatus.NOT_MODIFIED);
+        }
+        linkService.deleteByShortCode(code);
+        return new ResponseEntity<>("Link has been removed", HttpStatus.OK);
     }
 }
