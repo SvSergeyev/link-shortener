@@ -6,10 +6,11 @@ import tech.sergeyev.linkshortener.persistence.model.Author;
 import tech.sergeyev.linkshortener.persistence.model.ShortLink;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ShortLinkRepository extends CrudRepository<ShortLink, Long> {
-    ShortLink findByShortCode(String url);
+    Optional<ShortLink> findByShortCode(String url);
     ShortLink findByOriginalUrl(String url);
     List<ShortLink> findAllByAuthor(Author author);
     boolean existsByOriginalUrl(String url);

@@ -2,6 +2,8 @@ package tech.sergeyev.linkshortener.service;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ShortLinkService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShortLinkService.class);
 
     final ShortLinkRepository linkRepository;
     final ShortLinkGenerator generator;
@@ -62,15 +65,24 @@ public class ShortLinkService {
         return linkRepository.save(link);
     }
 
-    public ShortLink getOriginalUrlByShortCode(String code) {
-        return linkRepository.findByShortCode(code);
+    public ShortLink getByShortCode(String code) {
+        return linkRepository.findByShortCode(code).orElseThrow();
     }
 
-    public boolean checkByShortCode(String code) {
+    public boolean checkAvailabilityByShortcode(String code) {
         return linkRepository.existsByShortCode(code);
     }
 
     public void deleteByShortCode(String code) {
-        linkRepository.delete(linkRepository.findByShortCode(code));
+        linkRepository.delete(linkRepository.findByShortCode(code).orElseThrow());
+    }
+
+    public void update(String code) {
+        ShortLink link = linkRepository.findByShortCode(code).orElseThrow();
+        if (!link.getTemporary()) {
+            link.setTemporary(true);
+            link.setExpirationTime(LocalDateTime.now().plusMinutes(1));
+        }
+        linkRepository.save(link);
     }
 }

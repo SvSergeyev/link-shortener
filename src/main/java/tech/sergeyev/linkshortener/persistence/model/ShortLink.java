@@ -24,6 +24,7 @@ public class ShortLink {
     String originalUrl;
     @CreatedDate
     LocalDateTime createdAt;
+    LocalDateTime expirationTime;
     @JsonIgnore
     @ManyToOne
     Author author;

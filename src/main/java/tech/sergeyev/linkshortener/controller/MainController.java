@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import tech.sergeyev.linkshortener.persistence.model.ShortLink;
 import tech.sergeyev.linkshortener.service.ShortLinkService;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -39,10 +41,13 @@ public class MainController {
 
     @GetMapping("/{shortCode}")
     public ResponseEntity<?> redirectToShortUrl(@PathVariable("shortCode") String code) {
-        ShortLink url = linkService.getOriginalUrlByShortCode(code);
-        if (url != null) {
+        ShortLink link = linkService.getByShortCode(code);
+        if (link != null) {
+            if (link.getExpirationTime().isBefore(LocalDateTime.now())) {
+                return new ResponseEntity<>("Link has expired", HttpStatus.BAD_REQUEST);
+            }
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", url.getOriginalUrl());
+            headers.add("Location", link.getOriginalUrl());
             return new ResponseEntity<String>(headers, HttpStatus.FOUND);
         }
         return new ResponseEntity<>("No such link exists", HttpStatus.NOT_FOUND);
@@ -50,10 +55,19 @@ public class MainController {
 
     @DeleteMapping("/{shortCode}")
     public ResponseEntity<?> deleteLink(@PathVariable("shortCode") String code) {
-        if (!linkService.checkByShortCode(code)) {
-            return new ResponseEntity<>("No such link exists", HttpStatus.NOT_MODIFIED);
+        if (!linkService.checkAvailabilityByShortcode(code)) {
+            return new ResponseEntity<>("No such link exists", HttpStatus.BAD_REQUEST);
         }
         linkService.deleteByShortCode(code);
         return new ResponseEntity<>("Link has been removed", HttpStatus.OK);
+    }
+
+    @PatchMapping(value = "/{shortCode}")
+    public ResponseEntity<?> makeLinkTemporary(@PathVariable("shortCode") String code) {
+        if (!linkService.checkAvailabilityByShortcode(code)) {
+            return new ResponseEntity<>("No such link exists", HttpStatus.BAD_REQUEST);
+        }
+        linkService.update(code);
+        return new ResponseEntity<>("Link has been made temporary", HttpStatus.OK);
     }
 }
