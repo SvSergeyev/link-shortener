@@ -19,12 +19,14 @@ import java.time.LocalDateTime;
 public class ShortLink {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    long id;
-    String shortCode;
+    Long id;
+    String token;
     String originalUrl;
     @CreatedDate
     LocalDateTime createdAt;
     LocalDateTime expirationTime;
+    @JsonIgnore
+    int clickCount;
     @JsonIgnore
     @ManyToOne
     Author author;
@@ -32,10 +34,18 @@ public class ShortLink {
 
     @Override
     public String toString() {
-        return "ShortUrl{" +
-                "shortCode='" + shortCode + '\'' +
-                ", originalUrl='" + originalUrl + '\'' +
-                ", createdAt=" + createdAt +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("ShortUrl{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", token='").append(token).append('\'');
+        sb.append(", originalUrl='").append(originalUrl).append('\'');
+        sb.append(", createdAt='").append(createdAt).append('\'');
+        if (temporary) {
+            sb.append(", expirationTime='").append(expirationTime).append('\'');
+        }
+        else {
+            sb.append(", temporary='").append(false).append('\'');
+        }
+        return sb.toString();
     }
 }

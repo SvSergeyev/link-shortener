@@ -27,8 +27,8 @@ public class ShortLinkService {
     final ShortLinkGenerator generator;
     final AuthorDetailsService authorService;
     final AuthorRepository authorRepository;
-    @Value("${code.length}")
-    int codeLength;
+    @Value("${token.length}")
+    int tokenLength;
 
     public ShortLinkService(ShortLinkRepository linkRepository,
                             ShortLinkGenerator generator,
@@ -54,8 +54,8 @@ public class ShortLinkService {
         Author author = authorRepository.findAuthorByUsername(authorizedUser.getUsername()).orElseThrow();
         link.setAuthor(author);
 
-        String code = generator.generateCode(codeLength);
-        link.setShortCode(code);
+        String token = generator.generateToken(tokenLength);
+        link.setToken(token);
 
         String originalUrlToString = URLDecoder.decode(originalUrl, StandardCharsets.UTF_8);
         link.setOriginalUrl(originalUrlToString);
@@ -65,24 +65,33 @@ public class ShortLinkService {
         return linkRepository.save(link);
     }
 
-    public ShortLink getByShortCode(String code) {
-        return linkRepository.findByShortCode(code).orElseThrow();
+    public ShortLink getByToken(String token) {
+        return linkRepository.findByToken(token).orElseThrow();
     }
 
-    public boolean checkAvailabilityByShortcode(String code) {
-        return linkRepository.existsByShortCode(code);
+    public boolean checkAvailabilityByToken(String token) {
+        return linkRepository.existsByToken(token);
     }
 
-    public void deleteByShortCode(String code) {
-        linkRepository.delete(linkRepository.findByShortCode(code).orElseThrow());
+    public void deleteByToken(String token) {
+        linkRepository.delete(linkRepository.findByToken(token).orElseThrow());
     }
 
-    public void update(String code) {
-        ShortLink link = linkRepository.findByShortCode(code).orElseThrow();
-        if (!link.getTemporary()) {
-            link.setTemporary(true);
-            link.setExpirationTime(LocalDateTime.now().plusMinutes(1));
-        }
-        linkRepository.save(link);
+//    public void update(String token) {
+//        ShortLink link = linkRepository.findByToken(token).orElseThrow();
+//        if (!link.getTemporary()) {
+//            link.setTemporary(true);
+//            link.setExpirationTime(LocalDateTime.now().plusMinutes(1));
+//        }
+//        linkRepository.save(link);
+//    }
+
+    public void update(ShortLink newLink) {
+        linkRepository.findById(newLink.getId()).map(link -> {
+            link.setTemporary(newLink.getTemporary());
+            link.setExpirationTime(newLink.getExpirationTime());
+            link.setClickCount(newLink.getClickCount());
+            return linkRepository.save(link);
+        }).orElseThrow();
     }
 }

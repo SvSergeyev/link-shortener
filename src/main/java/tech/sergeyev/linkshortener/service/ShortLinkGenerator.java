@@ -18,7 +18,7 @@ public class ShortLinkGenerator {
                 .build();
     }
 
-    public String generateCode(int length) {
+    public String generateToken(int length) {
         return generator.generate(length);
     }
 }

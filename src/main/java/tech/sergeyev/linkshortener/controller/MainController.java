@@ -39,35 +39,45 @@ public class MainController {
             : ResponseEntity.badRequest().build();
     }
 
-    @GetMapping("/{shortCode}")
-    public ResponseEntity<?> redirectToShortUrl(@PathVariable("shortCode") String code) {
-        ShortLink link = linkService.getByShortCode(code);
+    @GetMapping("/{token}")
+    public ResponseEntity<?> redirectToShortUrl(@PathVariable("token") String token) {
+        ShortLink link = linkService.getByToken(token);
         if (link != null) {
-            if (link.getExpirationTime().isBefore(LocalDateTime.now())) {
+            if (link.getTemporary() && link.getExpirationTime().isBefore(LocalDateTime.now())) {
                 return new ResponseEntity<>("Link has expired", HttpStatus.BAD_REQUEST);
             }
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", link.getOriginalUrl());
+
+            link.setClickCount(link.getClickCount() + 1);
+            linkService.update(link);
+
             return new ResponseEntity<String>(headers, HttpStatus.FOUND);
         }
         return new ResponseEntity<>("No such link exists", HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{shortCode}")
-    public ResponseEntity<?> deleteLink(@PathVariable("shortCode") String code) {
-        if (!linkService.checkAvailabilityByShortcode(code)) {
+    @DeleteMapping("/{token}")
+    public ResponseEntity<?> deleteLink(@PathVariable("token") String token) {
+        if (!linkService.checkAvailabilityByToken(token)) {
             return new ResponseEntity<>("No such link exists", HttpStatus.BAD_REQUEST);
         }
-        linkService.deleteByShortCode(code);
+        linkService.deleteByToken(token);
         return new ResponseEntity<>("Link has been removed", HttpStatus.OK);
     }
 
-    @PatchMapping(value = "/{shortCode}")
-    public ResponseEntity<?> makeLinkTemporary(@PathVariable("shortCode") String code) {
-        if (!linkService.checkAvailabilityByShortcode(code)) {
+    @PatchMapping(value = "/{token}")
+    public ResponseEntity<?> makeLinkTemporary(@PathVariable("token") String token) {
+        if (!linkService.checkAvailabilityByToken(token)) {
             return new ResponseEntity<>("No such link exists", HttpStatus.BAD_REQUEST);
         }
-        linkService.update(code);
+        ShortLink link = linkService.getByToken(token);
+        if (link.getTemporary()) {
+            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        }
+        link.setTemporary(true);
+        link.setExpirationTime(LocalDateTime.now().plusMinutes(1));
+        linkService.update(link);
         return new ResponseEntity<>("Link has been made temporary", HttpStatus.OK);
     }
 }
