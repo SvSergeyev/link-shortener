@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tech.sergeyev.linkshortener.persistence.model.ShortLink;
 import tech.sergeyev.linkshortener.service.ShortLinkService;
@@ -16,12 +19,9 @@ import java.time.LocalDateTime;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class MainController {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(MainController.class.getSimpleName());
-
-    final ShortLinkService linkService;
+    private final ShortLinkService linkService;
 
     public MainController(ShortLinkService linkService) {
         this.linkService = linkService;
@@ -34,9 +34,17 @@ public class MainController {
 
     @PostMapping(value = "/", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createShortUrl(@RequestBody ShortLink url) {
-        return url != null
-            ? ResponseEntity.ok(linkService.create(url.getOriginalUrl()))
-            : ResponseEntity.badRequest().build();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth instanceof AnonymousAuthenticationToken) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (linkService.checkAvailabilityByOriginalUrl(url.getOriginalUrl())) {
+            return ResponseEntity.ok(linkService.getByOriginalUrl(url.getOriginalUrl()));
+        }
+
+        return new ResponseEntity<>(linkService.create(url.getOriginalUrl()), HttpStatus.CREATED);
     }
 
     @GetMapping("/{token}")

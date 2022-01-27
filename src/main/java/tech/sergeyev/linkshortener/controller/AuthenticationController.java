@@ -17,8 +17,6 @@ import tech.sergeyev.linkshortener.payload.AuthDto;
 import tech.sergeyev.linkshortener.persistence.model.Author;
 import tech.sergeyev.linkshortener.persistence.repository.AuthorRepository;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 @RestController
 @RequestMapping
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -36,7 +34,7 @@ public class AuthenticationController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping(value = "/login", consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/login")
     public ResponseEntity<?> login(@RequestBody AuthDto loginData) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

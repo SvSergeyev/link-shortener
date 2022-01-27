@@ -17,11 +17,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthorDetailsService implements UserDetailsService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthorDetailsService.class);
 
-    final AuthorRepository repository;
+    private final AuthorRepository repository;
 
     public AuthorDetailsService(AuthorRepository repository) {
         this.repository = repository;

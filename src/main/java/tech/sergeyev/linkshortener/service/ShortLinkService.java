@@ -69,22 +69,17 @@ public class ShortLinkService {
         return linkRepository.findByToken(token).orElseThrow();
     }
 
+    public ShortLink getByOriginalUrl(String url) { return linkRepository.findByOriginalUrl(url); }
+
     public boolean checkAvailabilityByToken(String token) {
         return linkRepository.existsByToken(token);
     }
 
+    public boolean checkAvailabilityByOriginalUrl(String url) { return linkRepository.existsByOriginalUrl(url); }
+
     public void deleteByToken(String token) {
         linkRepository.delete(linkRepository.findByToken(token).orElseThrow());
     }
-
-//    public void update(String token) {
-//        ShortLink link = linkRepository.findByToken(token).orElseThrow();
-//        if (!link.getTemporary()) {
-//            link.setTemporary(true);
-//            link.setExpirationTime(LocalDateTime.now().plusMinutes(1));
-//        }
-//        linkRepository.save(link);
-//    }
 
     public void update(ShortLink newLink) {
         linkRepository.findById(newLink.getId()).map(link -> {

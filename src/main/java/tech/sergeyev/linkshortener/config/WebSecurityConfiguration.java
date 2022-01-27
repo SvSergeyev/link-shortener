@@ -17,7 +17,6 @@ import tech.sergeyev.linkshortener.service.security.AuthorDetailsService;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfiguration.class);
 
     private final AuthorDetailsService authorDetailsService;
 
