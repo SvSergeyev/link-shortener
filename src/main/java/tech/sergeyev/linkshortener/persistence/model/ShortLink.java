@@ -22,8 +22,6 @@ public class ShortLink {
     Long id;
     String token;
     String originalUrl;
-    @CreatedDate
-    LocalDateTime createdAt;
     LocalDateTime expirationTime;
     @JsonIgnore
     int clickCount;
@@ -39,7 +37,6 @@ public class ShortLink {
         sb.append("id='").append(id).append('\'');
         sb.append(", token='").append(token).append('\'');
         sb.append(", originalUrl='").append(originalUrl).append('\'');
-        sb.append(", createdAt='").append(createdAt).append('\'');
         if (temporary) {
             sb.append(", expirationTime='").append(expirationTime).append('\'');
         }

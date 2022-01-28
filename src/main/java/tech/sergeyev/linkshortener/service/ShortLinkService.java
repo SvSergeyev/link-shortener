@@ -60,8 +60,6 @@ public class ShortLinkService {
         String originalUrlToString = URLDecoder.decode(originalUrl, StandardCharsets.UTF_8);
         link.setOriginalUrl(originalUrlToString);
 
-        link.setCreatedAt(LocalDateTime.now());
-
         return linkRepository.save(link);
     }
 
