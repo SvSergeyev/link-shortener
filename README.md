@@ -29,3 +29,10 @@
 
 #### Удаление ссылок
 DELETE-запрос на localhost:8080/token удаляет запись c объектом ShortLink из БД.
+
+### Запуск приложения
+Из консоли:
+> java -jar target/link-shortener-0.0.1-SNAPSHOT.jar    
+
+Из терминала Intellij IDEA:
+> mvn spring-boot:run
