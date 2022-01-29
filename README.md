@@ -8,6 +8,13 @@
 (по-умолчанию вида localhost:8080/1n2YLRN3), осуществлять переход по ним, 
 а так же удалять их и ограничивать время действия (по-умолчанию 1 минута).
 
+### Из чего же, из чего же...
+* Maven
+* Spring Security
+* Spring Data JPA
+* PostgreSQL
+* Apache Commons Text
+
 ### Описание работы
 Основным элементом, используемым для хранения данных о ссылке, является объект класса [ShortLink](https://github.com/SvSergeyev/link-shortener/blob/master/src/main/java/tech/sergeyev/linkshortener/persistence/model/ShortLink.java).
 Перед началом работы в базе данных создается таблица [пользователей](https://github.com/SvSergeyev/link-shortener/blob/master/src/main/resources/schema.sql)
